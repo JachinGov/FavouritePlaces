@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "app/index.js", "app/screens/PlaceDetails.js", "app/screens/Map.js", "app/screens/AllPlaces.js", "app/screens/AddPlace.js", "app/models/Place.js", "app/components/Places/PlacesList.js"  ]
 }
