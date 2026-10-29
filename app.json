@@ -13,30 +13,38 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jachin.favplaces"
     },
     "android": {
+      "package": "com.jachin.favplaces",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "experiments": {
-      "typedRoutes": true
-    },
-    "plugins": [
-      [
-        "expo-image-picker",
-        {
-          "cameraPermission": "The app needs access to your camera in order to take photos of your favorite places."
-        }
-      ],
-      "expo-router"
-    ]
-  }
+    }
+  },
+  "web": {
+    "bundler": "metro",
+    "output": "static",
+    "favicon": "./assets/images/favicon.png"
+  },
+  "experiments": {
+    "typedRoutes": true
+  },
+  "plugins": [
+    [
+      "expo-image-picker",
+      {
+        "cameraPermission": "The app needs access to your camera in order to take photos of your favorite places."
+      }
+    ],
+    [
+      "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow Fav-Places to use your location."
+      }
+    ],
+    "expo-router"
+  ]
 }

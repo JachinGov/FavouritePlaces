@@ -1,35 +1,39 @@
-import { Alert, Button, Image, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Alert, Image, StyleSheet, Text, View } from "react-native";
 import {
   launchCameraAsync,
   useCameraPermissions,
   PermissionStatus,
 } from "expo-image-picker";
-import { useState } from "react";
-import { Colors } from "../../constants/colors";
+
 import OutlinedButton from "../UI/OutlinedButton";
+import { Colors } from "../../constants/colors";
 
-function ImagePicker() {
-  const [pickedImage, setPickedImage] = useState();
-
+function ImagePicker({
+  onTakeImage,
+}: {
+  onTakeImage: (imageUri: string) => void;
+}) {
+  const [pickedImageUri, setPickedImageUri] = useState<string>();
   const [cameraPermissionInformation, requestPermission] =
     useCameraPermissions();
 
   async function verifyPermissions() {
-    if (cameraPermissionInformation.status === PermissionStatus.UNDETERMINED) {
-      const permissionResponse = await requestPermission();
-
-      return permissionResponse.granted;
+    if (cameraPermissionInformation?.granted) {
+      return true;
     }
 
-    if (cameraPermissionInformation.status === PermissionStatus.DENIED) {
-      Alert.alert(
-        "Insufficient Permissions!",
-        "You need to grant camera permissions to use this app.",
-      );
-      return false;
+    const permissionResponse = await requestPermission();
+
+    if (permissionResponse.granted) {
+      return true;
     }
 
-    return true;
+    Alert.alert(
+      "Insufficient Permissions!",
+      "You need to grant camera permissions to use this feature.",
+    );
+    return false;
   }
 
   async function takeImageHandler() {
@@ -45,13 +49,20 @@ function ImagePicker() {
       quality: 0.5,
     });
 
-    setPickedImage(image.uri);
+    if (!image.canceled) {
+      setPickedImageUri(image.assets[0].uri);
+      onTakeImage(image.assets[0].uri);
+    }
   }
 
-  let imagePreview = <Text>No image taken yet.</Text>;
+  let imagePreview = (
+    <Text style={styles.fallbackText}>No image taken yet.</Text>
+  );
 
-  if (pickedImage) {
-    imagePreview = <Image style={styles.image} source={{ uri: pickedImage }} />;
+  if (pickedImageUri) {
+    imagePreview = (
+      <Image source={{ uri: pickedImageUri }} style={styles.image} />
+    );
   }
 
   return (
@@ -70,12 +81,15 @@ const styles = StyleSheet.create({
   imagePreview: {
     width: "100%",
     height: 200,
-    marginVertical: 8,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#a0defb",
+    backgroundColor: Colors.primary100,
     borderRadius: 4,
+    marginVertical: 8,
     overflow: "hidden",
+  },
+  fallbackText: {
+    color: Colors.primary800,
   },
   image: {
     width: "100%",

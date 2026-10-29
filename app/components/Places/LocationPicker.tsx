@@ -3,7 +3,6 @@ import { Alert, View, StyleSheet, Image, Text } from "react-native";
 import {
   getCurrentPositionAsync,
   useForegroundPermissions,
-  PermissionStatus,
 } from "expo-location";
 import {
   useNavigation,
@@ -15,44 +14,52 @@ import { Colors } from "../../constants/colors";
 import OutlinedButton from "../UI/OutlinedButton";
 import { getMapPreview } from "../../util/Location";
 
-function LocationPicker() {
-  const [pickedLocation, setPickedLocation] = useState();
+function LocationPicker({
+  onPickLocation,
+}: {
+  onPickLocation: (location: { lat: number; lng: number }) => void;
+}) {
+  const [pickedLocation, setPickedLocation] = useState<{
+    lat: number;
+    lng: number;
+  }>();
   const isFocused = useIsFocused();
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute();
 
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
 
+  const mapParams = route.params as { pickedLat?: number; pickedLng?: number };
+
   useEffect(() => {
-    if (isFocused && route.params) {
+    if (isFocused && mapParams?.pickedLat && mapParams?.pickedLng) {
       const mapPickedLocation = {
-        lat: route.params.pickedLat,
-        lng: route.params.pickedLng,
+        lat: mapParams.pickedLat,
+        lng: mapParams.pickedLng,
       };
       setPickedLocation(mapPickedLocation);
+      onPickLocation(mapPickedLocation);
     }
-  }, [route, isFocused]);
+  }, [route, isFocused, onPickLocation]);
 
   async function verifyPermissions() {
-    if (
-      locationPermissionInformation.status === PermissionStatus.UNDETERMINED
-    ) {
-      const permissionResponse = await requestPermission();
-
-      return permissionResponse.granted;
+    if (locationPermissionInformation?.granted) {
+      return true;
     }
 
-    if (locationPermissionInformation.status === PermissionStatus.DENIED) {
-      Alert.alert(
-        "Insufficient Permissions!",
-        "You need to grant location permissions to use this app.",
-      );
-      return false;
+    const permissionResponse = await requestPermission();
+
+    if (permissionResponse.granted) {
+      return true;
     }
 
-    return true;
+    Alert.alert(
+      "Insufficient Permissions!",
+      "You need to grant location permissions to use this app.",
+    );
+    return false;
   }
 
   async function getLocationHandler() {
@@ -63,10 +70,13 @@ function LocationPicker() {
     }
 
     const location = await getCurrentPositionAsync();
-    setPickedLocation({
+    const locationData = {
       lat: location.coords.latitude,
       lng: location.coords.longitude,
-    });
+    };
+
+    setPickedLocation(locationData);
+    onPickLocation(locationData);
   }
 
   function pickOnMapHandler() {
@@ -122,6 +132,5 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    // borderRadius: 4
   },
 });

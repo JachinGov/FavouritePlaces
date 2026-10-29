@@ -2,12 +2,51 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import ImagePicker from "./ImagePicker";
 import LocationPicker from "./LocationPicker";
-
-function PlaceForm() {
+import OutlinedButton from "../UI/OutlinedButton";
+import { useCallback } from "react";
+function PlaceForm({
+  onCreatePlace,
+}: {
+  onCreatePlace: (placeData: {
+    title: string;
+    imageUri: string;
+    lat: number;
+    lng: number;
+  }) => void;
+}) {
   const [enteredTitle, setEnteredTitle] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string>();
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  }>();
 
-  function changeTitleHandler(enterendText: string) {
-    setEnteredTitle(enterendText);
+  function changeTitleHandler(enteredText: string) {
+    setEnteredTitle(enteredText);
+  }
+
+  function takeImageHandler(imageUri: string) {
+    setSelectedImage(imageUri);
+  }
+
+  const pickLocationHandler = useCallback(
+    (location: { lat: number; lng: number }) => {
+      setSelectedLocation(location);
+    },
+    [],
+  );
+
+  function savePlaceHandler() {
+    if (!enteredTitle || !selectedImage || !selectedLocation) {
+      return;
+    }
+
+    onCreatePlace({
+      title: enteredTitle,
+      imageUri: selectedImage,
+      lat: selectedLocation.lat,
+      lng: selectedLocation.lng,
+    });
   }
 
   return (
@@ -20,8 +59,11 @@ function PlaceForm() {
           value={enteredTitle}
         />
       </View>
-      <ImagePicker />
-      <LocationPicker />
+      <ImagePicker onTakeImage={takeImageHandler} />
+      <LocationPicker onPickLocation={pickLocationHandler} />
+      <OutlinedButton icon="save" onPress={savePlaceHandler}>
+        Add Place
+      </OutlinedButton>
     </ScrollView>
   );
 }
@@ -36,15 +78,14 @@ const styles = StyleSheet.create({
   labels: {
     fontWeight: "bold",
     marginBottom: 4,
-    color: "#1aacf0",
+    color: "#ffffff",
   },
   inputs: {
     marginVertical: 8,
-    paddingHorizontal: 4,
-    paddingVertical: 8,
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 4,
     fontSize: 16,
-    borderBottomColor: "#0570c9",
-    borderBottomWidth: 2,
-    backgroundColor: "#a0defb",
   },
 });

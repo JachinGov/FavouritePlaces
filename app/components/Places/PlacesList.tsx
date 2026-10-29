@@ -1,13 +1,16 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import PlaceItem from "./PlaceItem";
-import { Place } from "../../types/types";
+import { Colors } from "../../constants/colors";
 
-type PlacesListProps = {
-  places: Place[];
+function PlacesList({
+  places,
+  onSelectPlace,
+  onDeletePlace,
+}: {
+  places: any[];
   onSelectPlace: (id: string) => void;
-};
-
-function PlacesList({ places, onSelectPlace }: PlacesListProps) {
+  onDeletePlace: (id: string) => void;
+}) {
   if (!places || places.length === 0) {
     return (
       <View style={styles.fallbackContainer}>
@@ -20,25 +23,33 @@ function PlacesList({ places, onSelectPlace }: PlacesListProps) {
 
   return (
     <FlatList
+      style={styles.list}
       data={places}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <PlaceItem place={item} onSelect={onSelectPlace} />
+        <PlaceItem
+          place={item}
+          onSelect={onSelectPlace}
+          onDelete={onDeletePlace}
+        />
       )}
     />
   );
 }
 
 export default PlacesList;
-
 const styles = StyleSheet.create({
+  list: {
+    margin: 24,
+  },
   fallbackContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 24,
   },
   fallbackText: {
     fontSize: 16,
-    color: "#77cff8",
+    color: Colors.primary200,
   },
 });

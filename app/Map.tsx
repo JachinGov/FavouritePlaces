@@ -1,11 +1,17 @@
 import { useCallback, useLayoutEffect, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, MapPressEvent } from "react-native-maps";
+import { useNavigation } from "expo-router";
 
 import IconButton from "./components/UI/IconButton";
 
-function Map({ navigation }) {
-  const [selectedLocation, setSelectedLocation] = useState();
+function Map() {
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lng: number;
+  }>();
+
+  const navigation = useNavigation();
 
   const region = {
     latitude: 37.78,
@@ -14,7 +20,7 @@ function Map({ navigation }) {
     longitudeDelta: 0.0421,
   };
 
-  function selectLocationHandler(event) {
+  function selectLocationHandler(event: MapPressEvent) {
     const lat = event.nativeEvent.coordinate.latitude;
     const lng = event.nativeEvent.coordinate.longitude;
 
@@ -30,7 +36,7 @@ function Map({ navigation }) {
       return;
     }
 
-    navigation.navigate("AddPlace", {
+    (navigation.navigate as any)("AddPlace", {
       pickedLat: selectedLocation.lat,
       pickedLng: selectedLocation.lng,
     });
@@ -38,11 +44,11 @@ function Map({ navigation }) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: ({ tintColor }) => (
+      headerRight: ({ tintColor }: { tintColor?: string }) => (
         <IconButton
           icon="save"
           size={24}
-          color={tintColor}
+          color={tintColor ?? "white"}
           onPress={savePickedLocationHandler}
         />
       ),

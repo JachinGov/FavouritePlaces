@@ -22,7 +22,7 @@ export default function RootLayout() {
               <IconButton
                 icon="add"
                 size={24}
-                color={tintColor}
+                color={tintColor ?? "white"}
                 onPress={() => navigation.navigate("AddPlace")}
               />
             ),
